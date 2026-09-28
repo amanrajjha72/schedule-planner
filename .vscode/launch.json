@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Node Functions",
+            "type": "node",
+            "request": "attach",
+            "restart": true,
+            "port": 9229,
+            "preLaunchTask": "schedule-api: func host start"
+        },
+        {
+            "name": "Schedule API (debug)",
+            "type": "node",
+            "request": "attach",
+            "restart": true,
+            "port": 9229,
+            "outFiles": ["${workspaceFolder}/services/schedule-api/dist/**/*.js"],
+            "preLaunchTask": "schedule-api: func host start"
+        },
+        {
+            "name": "Schedule Web (debug)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/services/schedule-web",
+            "preLaunchTask": "schedule-web dev"
+        },
+        {
+            "name": "Debug All Services",
+            "configurations": ["Schedule API (debug)", "Schedule Web (debug)"],
+            "preLaunchTask": "debug all services",
+            "stopAll": true
+        }
+    ]
+}

@@ -1,0 +1,101 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "func",
+			"label": "schedule-api: func host start",
+			"command": "host start",
+			"problemMatcher": "$func-node-watch",
+			"isBackground": true,
+			"dependsOn": ["schedule-api: npm watch", "Start Emulators"],
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"options": {
+				"cwd": "${workspaceFolder}/services/schedule-api",
+				"env": { "languageWorkers__node__arguments": "--inspect=9229" }
+			}
+		},
+		{
+			"type": "shell",
+			"label": "schedule-api: npm build",
+			"command": "npm run build",
+			"dependsOn": "schedule-api: npm clean",
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"problemMatcher": "$tsc",
+			"options": {
+				"cwd": "${workspaceFolder}/services/schedule-api"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "schedule-api: npm watch",
+			"command": "npm run watch",
+			"dependsOn": "schedule-api: npm clean",
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"problemMatcher": "$tsc-watch",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"isBackground": true,
+			"options": {
+				"cwd": "${workspaceFolder}/services/schedule-api"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "schedule-api: npm install",
+			"command": "npm install",
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"options": {
+				"cwd": "${workspaceFolder}/services/schedule-api"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "schedule-api: npm prune",
+			"command": "npm prune --production",
+			"dependsOn": "schedule-api: npm build",
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}/services/schedule-api"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "schedule-api: npm clean",
+			"command": "npm run clean",
+			"dependsOn": "schedule-api: npm install",
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"options": {
+				"cwd": "${workspaceFolder}/services/schedule-api"
+			}
+		},
+		{
+			"type": "shell",
+			"label": "Start Emulators",
+			"command": "docker compose up -d",
+			"problemMatcher": [],
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" }
+		},
+		{
+			"type": "shell",
+			"label": "schedule-web dev",
+			"command": "npm run dev",
+			"options": { "cwd": "${workspaceFolder}/services/schedule-web" },
+			"isBackground": true,
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" },
+			"problemMatcher": {
+				"owner": "vite",
+				"pattern": { "regexp": "^$" },
+				"background": { "activeOnStart": true, "beginsPattern": "VITE", "endsPattern": "Local:" }
+			}
+		},
+		{
+			"label": "debug all services",
+			"dependsOn": ["schedule-api: func host start", "schedule-web dev"],
+			"dependsOrder": "sequence",
+			"runOptions": { "instanceLimit": 1, "instancePolicy": "silent" }
+		}
+	]
+}

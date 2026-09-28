@@ -1,0 +1,14 @@
+{
+  "name": "schedule-planner",
+  "private": true,
+  "workspaces": [
+    "services/shared",
+    "services/schedule-api",
+    "services/schedule-web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @schedule/shared && npm run build --workspace schedule-api && npm run build --workspace schedule-web",
+    "emulators:start": "docker compose up -d",
+    "emulators:stop": "docker compose down"
+  }
+}

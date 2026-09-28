@@ -1,0 +1,1 @@
+& "$PSScriptRoot\..\request.ps1" -Method GET -Path '/openapi.yaml'

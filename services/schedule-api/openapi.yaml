@@ -1,0 +1,204 @@
+openapi: 3.0.3
+info:
+  title: Schedule Planner API
+  version: 1.0.0
+servers:
+  - url: /api
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    WeekRequest:
+      type: object
+      required: [weekOf]
+      properties:
+        weekOf: { type: string, format: date, description: Monday in ISO YYYY-MM-DD form }
+    SaveScheduleRequest:
+      type: object
+      required: [weekOf, sessions]
+      properties:
+        weekOf: { type: string, format: date }
+        sessions: { type: array, items: { $ref: '#/components/schemas/Session' } }
+    Session:
+      type: object
+      required: [id, day, date, startTime, endTime, title, durationHours, status]
+      properties:
+        id: { type: string, format: uuid }
+        day: { type: string, enum: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday] }
+        date: { type: string, format: date }
+        startTime: { type: string, example: '09:00' }
+        endTime: { type: string, example: '09:30' }
+        title: { type: string }
+        durationHours: { type: number }
+        status: { type: string, enum: [Scheduled, Needs review] }
+    GoalRequest:
+      type: object
+      required: [title, deadline, priority, targetHours]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        deadline: { type: string, format: date }
+        priority: { type: string, enum: [High, Medium, Low] }
+        targetHours: { type: number, multipleOf: 0.5 }
+    CommitmentRequest:
+      type: object
+      required: [title, days, startTime, endTime, protected, type]
+      properties:
+        title: { type: string }
+        days: { type: array, items: { type: string } }
+        startTime: { type: string, example: '09:00' }
+        endTime: { type: string, example: '13:00' }
+        protected: { type: boolean }
+        type: { type: string, enum: [Fixed, Protected, Personal] }
+    RegisterRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 12 }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+security:
+  - bearerAuth: []
+paths:
+  /health:
+    get:
+      security: []
+      responses:
+        '200': { description: Essential services healthy or degraded }
+        '503': { description: Essential services unavailable }
+  /schedule/current:
+    get:
+      responses:
+        '200': { description: Current user's weekly schedule }
+        '401': { description: Authentication required }
+    put:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SaveScheduleRequest' }
+      responses:
+        '200': { description: Schedule saved }
+        '422': { description: Invalid or conflicting sessions }
+  /schedule/generate:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WeekRequest' }
+      responses:
+        '200': { description: Generated sessions and unscheduled goal titles }
+  /goals:
+    get:
+      responses:
+        '200': { description: Current user's goals and scheduled progress }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GoalRequest' }
+      responses:
+        '201': { description: Goal created }
+  /goals/{goalId}:
+    patch:
+      parameters:
+        - in: path
+          name: goalId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Goal updated }
+        '404': { description: Goal not found }
+    delete:
+      parameters:
+        - in: path
+          name: goalId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Goal deleted }
+        '404': { description: Goal not found }
+  /commitments:
+    get:
+      responses:
+        '200': { description: Current user's recurring commitments }
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommitmentRequest' }
+      responses:
+        '201': { description: Commitment created }
+  /commitments/{commitmentId}:
+    put:
+      parameters:
+        - in: path
+          name: commitmentId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommitmentRequest' }
+      responses:
+        '200': { description: Commitment updated }
+        '404': { description: Commitment not found }
+    delete:
+      parameters:
+        - in: path
+          name: commitmentId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Commitment deleted }
+        '404': { description: Commitment not found }
+  /auth/register:
+    post:
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201': { description: Account created and bearer token issued }
+        '409': { description: Email already registered }
+  /auth/login:
+    post:
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200': { description: Signed in and bearer token issued }
+        '401': { description: Invalid credentials }
+  /auth/me:
+    get:
+      responses:
+        '200': { description: Authenticated user }
+        '401': { description: Authentication required }
+  /openapi.json:
+    get:
+      security: []
+      responses:
+        '200': { description: OpenAPI 3.0 JSON document }
+  /openapi.yaml:
+    get:
+      security: []
+      responses:
+        '200': { description: OpenAPI YAML document }

@@ -1,0 +1,16 @@
+{
+    "chat.editor.preferCopilotHarness": false,
+    "chat.defaultToCopilotHarness": false,
+    "azureFunctions.deploySubpath": "services\\schedule-api",
+    "azureFunctions.postDeployTask": "npm install (functions)",
+    "azureFunctions.projectLanguage": "TypeScript",
+    "azureFunctions.projectRuntime": "~4",
+    "debug.internalConsoleOptions": "neverOpen",
+    "azureFunctions.projectLanguageModel": 4,
+    "azureFunctions.preDeployTask": "schedule-api: npm prune",
+    "azureFunctions.showProjectWarning": false,
+    "azureFunctions.validateEmulators": false,
+    "debug.onTaskErrors": "debugAnyway",
+    "files.exclude": { "**/node_modules": true },
+    "search.exclude": { "**/node_modules": true }
+}
