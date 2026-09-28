@@ -1,0 +1,11 @@
+{
+  "installCommand": "npm install",
+  "buildCommand": "npm run build --workspace @schedule/shared && npm run build --workspace schedule-web",
+  "outputDirectory": "services/schedule-web/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
